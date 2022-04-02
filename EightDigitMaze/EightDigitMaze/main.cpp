@@ -5,6 +5,7 @@
 #include <stack>
 #include <iomanip>
 #include <fstream>
+#include<Windows.h>
 
 using namespace std;
 
@@ -31,7 +32,7 @@ int cantor_hash(const State& s) {
 	return res;
 }
 
-bool insert(const int &now) {
+bool insert(const int& now) {
 	int hash = cantor_hash(state[now]), u = head[hash];
 	while (u) {
 		if (!memcmp(state[u], state[now], sizeof(State)))
@@ -130,7 +131,7 @@ void print_paths(int start, int end) {
 //2 3 4 1 5 0 7 6 8
 
 int main() {
-	for (int i = 0; i < 9; ++i) { 
+	for (int i = 0; i < 9; ++i) {
 		cin >> state[1][i];
 	}
 	for (int i = 0; i < 9; ++i) {
@@ -143,10 +144,23 @@ int main() {
 	cout << endl;
 
 	fout << "digraph EightDigit{" << endl;
+
+	//start timing
+	LARGE_INTEGER t1, t2, tc;
+	QueryPerformanceFrequency(&tc);
+	QueryPerformanceCounter(&t1);
+
 	int ans = A_star();
+
+	//end timing
+	QueryPerformanceCounter(&t2);
+	double my_time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
+
+
 	if (ans > 0) {
-		printf("Total paths: %d\n\n", dis[ans]);
+		printf("Total steps: %d\n\n", dis[ans]);
 		print_paths(1, ans);
+		printf("A*search time %lfs\n",my_time);  
 	}
 	else {
 		cout << "No Solution!" << endl;
