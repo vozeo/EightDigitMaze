@@ -85,7 +85,7 @@ int A_star() {
 					dis[++cnt] = dis[index] + 1;
 					price[cnt] = dis[cnt] + cal_price(t);
 					parent[cnt] = index;
-					fout << index << "," << price[index] << " -> " << cnt << "," << price[cnt] << ";" << endl;
+					fout << index <</* "," << price[index] << */" -> " << cnt << /*"," << price[cnt] << */";" << endl;
 					states.push(cnt);
 				}
 			}
