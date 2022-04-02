@@ -3,128 +3,98 @@
 #include <cmath>
 #include <queue>
 #include <stack>
-
-#define MAXSTATE 10000000
-#define HASHSIZE 1000003
+#include <iomanip>
+#include <fstream>
 
 using namespace std;
 
 typedef int State[9];
 
-static State st[MAXSTATE], goal;
-static int dist[MAXSTATE], p[MAXSTATE], price[MAXSTATE];
+const int STATE = 362800 + 5;
 
-struct cmp_price
-{
-	bool operator ()(int x, int y)
-	{
-		return price[x] > price[y];  //小的优先级高
-	}
-};
+State state[STATE], goal;
+int dis[STATE], parent[STATE], price[STATE], head[STATE], next_edge[STATE];
 
-static priority_queue<int, vector<int>, cmp_price> states;
+auto comp_price = [](const int& a, const int& b) { return price[a] > price[b]; };
+priority_queue<int, vector<int>, decltype(comp_price)> states(comp_price);
 
-static const int dx[] = { -1, 0, 1, 0 };
-static const int dy[] = { 0, -1, 0, 1 };
+const int FAC[] = { 1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880 };
 
-static int head[HASHSIZE], next_pos[MAXSTATE];
-
-static void init_lookup_table() {
-	memset(head, 0, sizeof(head));
-}
-
-static int hash_state(State& s) {
-	int v = 0;
-
+int cantor_hash(const State& s) {
+	int res = 0;
 	for (int i = 0; i < 9; ++i) {
-		v = v * 10 + s[i];
+		int smaller = 0;
+		for (int j = i + 1; j < 9; ++j)
+			smaller += (s[j] < s[i]);
+		res += FAC[8 - i] * smaller;
 	}
-
-	return v % HASHSIZE;
+	return res;
 }
 
-static int try_to_insert(int s) {
-	int h = hash_state(st[s]);
-	int u = head[h];
+bool insert(const int &now) {
+	int hash = cantor_hash(state[now]), u = head[hash];
 	while (u) {
-		if (memcmp(st[u], st[s], sizeof(st[s])) == 0) {
-			return 0;
-		}
-		u = next_pos[u];
+		if (!memcmp(state[u], state[now], sizeof(State)))
+			return false;
+		u = next_edge[u];
 	}
-	next_pos[s] = head[h];
-	head[h] = s;
-
-	return 1;
+	next_edge[now] = head[hash], head[hash] = now;
+	return true;
 }
 
-static int cal_price(State& s) {
+int cal_price(const State& now) {
 	int price = 0;
-
 	for (int i = 0; i < 9; ++i) {
 		for (int j = 0; j < 9; ++j) {
-			if (s[i] == goal[j] && i != j) {
-				int x = (s[i] / 3 - goal[j] / 3);
-				int y = (s[i] % 3 - goal[j] % 3);
-				price += (int)sqrt((double)(x * x + y * y));
+			if (now[i] == goal[j] && i != j) {
+				int x = (now[i] / 3 - goal[j] / 3), y = (now[i] % 3 - goal[j] % 3);
+				price += x * x + y * y;
 			}
 		}
 	}
-
 	return price;
 }
 
-static int dfs(int max_depth) {
-	init_lookup_table();
+const int DX[] = { -1, 0, 1, 0 };
+const int DY[] = { 0, -1, 0, 1 };
 
+ofstream fout("out.txt");
+
+int A_star() {
 	int cnt = 1;
-	int depth = 1;
-
 	states.push(cnt);
 	while (!states.empty()) {
 		int index = states.top();
 		states.pop();
-		State& s = st[index];
-
-		if (memcmp(s, goal, sizeof(s)) == 0) {
+		State& s = state[index];
+		if (!memcmp(s, goal, sizeof(State)))
 			return index;
-		}
-
 		int z;
-		for (z = 0; z < 9; ++z) {
-			if (s[z] == 0) {
+		for (z = 0; z < 9; ++z)
+			if (!s[z])
 				break;
-			}
-		}
-
-		++depth;
 		int x = z / 3, y = z % 3;
 		for (int d = 0; d < 4; ++d) {
-			int newX = x + dx[d];
-			int newY = y + dy[d];
-			if (newX >= 0 && newX < 3 && newY >= 0 && newY < 3) {
-				int newZ = newX * 3 + newY;
-
-				State& t = st[cnt + 1];
+			int x_new = x + DX[d], y_new = y + DY[d];
+			if (x_new >= 0 && x_new < 3 && y_new >= 0 && y_new < 3) {
+				int z_new = x_new * 3 + y_new;
+				State& t = state[cnt + 1];
 				memcpy(&t, &s, sizeof(s));
-				t[newZ] = s[z];
-				t[z] = s[newZ];
-
-				if (try_to_insert(cnt + 1) == 1) {
-					++cnt;
-					dist[cnt] = dist[index] + 1;
-					price[cnt] = dist[cnt] + cal_price(t);
-					p[cnt] = index;
+				swap(t[z], t[z_new]);
+				if (insert(cnt + 1)) {
+					dis[++cnt] = dis[index] + 1;
+					price[cnt] = dis[cnt] + cal_price(t);
+					parent[cnt] = index;
+					fout << index << "," << price[index] << " -> " << cnt << "," << price[cnt] << ";" << endl;
 					states.push(cnt);
 				}
 			}
 		}
 	}
-
 	return 0;
 }
 
-static void print_board(State& s) {
+void print_board(State& s) {
 	for (int i = 0; i < 9; ++i) {
 		if (i % 3 == 0 && i > 0) {
 			cout << endl;
@@ -134,43 +104,55 @@ static void print_board(State& s) {
 	cout << endl;
 }
 
-static void print_paths(int start, int end) {
+void print_paths(int start, int end) {
 	int count = 1;
 	stack<int> stack;
+	//ofstream fout("out.txt");
+	//fout << "digraph EightDigit{" << endl;
 
 	while (start != end) {
 		stack.push(end);
-		end = p[end];
+		end = parent[end];
 	}
 	while (!stack.empty()) {
 		int i = stack.top();
 		stack.pop();
 		cout << "Step " << count++ << " : " << endl;
-		print_board(st[i]);
+		//fout << "f(n) = " << price[i] << ";" << endl;
+		print_board(state[i]);
 	}
+	//fout << "}" << endl;
+	//system("dot -Tpng out.txt -o out.png");
 }
+
+
+//1 2 3 4 5 0 7 8 6
+//2 3 4 1 5 0 7 6 8
 
 int main() {
 	for (int i = 0; i < 9; ++i) { 
-		cin >> st[1][i];
+		cin >> state[1][i];
 	}
 	for (int i = 0; i < 9; ++i) {
 		cin >> goal[i];
 	}
 	cout << "\nStart: " << endl;
-	print_board(st[1]);
+	print_board(state[1]);
 	cout << "\nGoal:" << endl;
 	print_board(goal);
 	cout << endl;
 
-	int ans = dfs(4);
+	fout << "digraph EightDigit{" << endl;
+	int ans = A_star();
 	if (ans > 0) {
-		printf("Total paths: %d\n\n", dist[ans]);
+		printf("Total paths: %d\n\n", dis[ans]);
 		print_paths(1, ans);
 	}
 	else {
 		cout << "No Solution!" << endl;
 	}
+	fout << "}" << endl;
+	fout.close();
 
 	return 0;
 }
