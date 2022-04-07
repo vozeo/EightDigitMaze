@@ -16,13 +16,13 @@ const int STATE = 362800 + 5;
 State state[STATE], goal;
 int dis[STATE], parent[STATE], price[STATE], head[STATE], next_edge[STATE];
 
-auto comp_price = [](const int &a, const int &b)
+auto comp_price = [](const int& a, const int& b)
 { return price[a] > price[b]; };
 priority_queue<int, vector<int>, decltype(comp_price)> states(comp_price);
 
-const int FAC[] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+const int FAC[] = { 1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880 };
 
-int cantor_hash(const State &s)
+int cantor_hash(const State& s)
 {
 	int res = 0;
 	for (int i = 0; i < 9; ++i)
@@ -35,7 +35,7 @@ int cantor_hash(const State &s)
 	return res;
 }
 
-bool insert(const int &now)
+bool insert(const int& now)
 {
 	int hash = cantor_hash(state[now]), u = head[hash];
 	while (u)
@@ -52,24 +52,17 @@ bool insert(const int &now)
 #define SUM_EUCLEDIAN_DISTANCE_SQUARE 2
 #define SUM_MANHATTAN_DISTANCE_SQUARE 3
 
-int misplace_square(const State &now)
+int misplace_square(const State& now)
 {
 	int price = 0;
-	for (int i = 0; i < 9; ++i)
-	{
-		for (int j = 0; j < 9; ++j)
-		{
-			if (now[i] == goal[j] && i != j)
-			{
-				int x = (now[i] / 3 - goal[j] / 3), y = (now[i] % 3 - goal[j] % 3);
-				price += x * x + y * y;
-			}
-		}
+	for (int i = 0; i < 9; ++i) {
+		if (now[i] != goal[i])
+			++price;
 	}
 	return price;
 }
 
-int sum_eucledian_distance_square(const State &now)
+int sum_eucledian_distance_square(const State& now)
 {
 	int price = 0;
 	for (int i = 0; i < 9; i++)
@@ -86,7 +79,7 @@ int sum_eucledian_distance_square(const State &now)
 	return price;
 }
 
-int sum_manhattan_distance_square(const State &now)
+int sum_manhattan_distance_square(const State& now)
 {
 	int price = 0;
 	for (int i = 0; i < 9; i++)
@@ -95,7 +88,7 @@ int sum_manhattan_distance_square(const State &now)
 		{
 			if (now[i] == goal[j] && i != j && now[i] != 0)
 			{
-				int x = (int)fabs(i / 3 - j / 3), y = (int)fabs(i % 3 - j % 3);
+				int x = abs(i / 3 - j / 3), y = abs(i % 3 - j % 3);
 				price += (x + y);
 			}
 		}
@@ -103,7 +96,7 @@ int sum_manhattan_distance_square(const State &now)
 	return price;
 }
 
-int (*choose_cal_price_fun(int c))(const State &now)
+int (*choose_cal_price_fun(int c))(const State& now)
 {
 	switch (c)
 	{
@@ -116,12 +109,12 @@ int (*choose_cal_price_fun(int c))(const State &now)
 	}
 }
 
-const int DX[] = {-1, 0, 1, 0};
-const int DY[] = {0, -1, 0, 1};
+const int DX[] = { -1, 0, 1, 0 };
+const int DY[] = { 0, -1, 0, 1 };
 
 ofstream fout("out.txt");
 
-int A_star(int (*cal_price)(const State &now))
+int A_star(int (*cal_price)(const State& now))
 {
 	int cnt = 1;
 	states.push(cnt);
@@ -129,7 +122,7 @@ int A_star(int (*cal_price)(const State &now))
 	{
 		int index = states.top();
 		states.pop();
-		State &s = state[index];
+		State& s = state[index];
 		if (!memcmp(s, goal, sizeof(State)))
 			return index;
 		int z;
@@ -143,7 +136,7 @@ int A_star(int (*cal_price)(const State &now))
 			if (x_new >= 0 && x_new < 3 && y_new >= 0 && y_new < 3)
 			{
 				int z_new = x_new * 3 + y_new;
-				State &t = state[cnt + 1];
+				State& t = state[cnt + 1];
 				memcpy(&t, &s, sizeof(s));
 				swap(t[z], t[z_new]);
 				if (insert(cnt + 1))
@@ -160,7 +153,7 @@ int A_star(int (*cal_price)(const State &now))
 	return 0;
 }
 
-void print_board(State &s)
+void print_board(State& s)
 {
 	for (int i = 0; i < 9; ++i)
 	{
@@ -197,6 +190,22 @@ void print_paths(int start, int end)
 	// system("dot -Tpng out.txt -o out.png");
 }
 
+int check_rev(const State& now)
+{
+	int rev = 0;
+	for (int i = 0; i < 9; ++i)
+	{
+		for (int j = i+1; j < 9; ++j)
+		{
+			if (now[i]!=0&&now[j]!=0&&now[i]>now[j])
+			{
+				++rev;
+			}
+		}
+	}
+	return rev;
+}
+
 // 1 2 3 4 5 0 7 8 6
 // 2 3 4 1 5 0 7 6 8
 
@@ -218,7 +227,14 @@ int main()
 
 	fout << "digraph EightDigit{" << endl;
 
-	int (*cal_price)(const State &now) = choose_cal_price_fun(SUM_MANHATTAN_DISTANCE_SQUARE);
+	int (*cal_price)(const State & now) = choose_cal_price_fun(MISPLACE_SQUARE);
+
+	//check if ans exist
+	if (check_rev(state[1]) % 2 != check_rev(goal)%2)
+	{
+		cout << "No solution" << endl;
+		return 0;
+	}
 
 	// start timing
 	LARGE_INTEGER t1, t2, tc;
