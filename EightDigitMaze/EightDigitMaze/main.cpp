@@ -52,6 +52,8 @@ bool insert(const int& now)
 #define SUM_EUCLEDIAN_DISTANCE_SQUARE 2
 #define SUM_MANHATTAN_DISTANCE_SQUARE 3
 #define SUM_ROW_COL_SQUARE 4
+//non admissable
+#define NILSSON_SEQUENCE_SCORE 5
 
 int misplace_square(const State& now)
 {
@@ -115,6 +117,31 @@ int sum_row_col_square(const State& now)
 	return price;
 }
 
+int nilsson_sequence_score(const State& now)
+{
+	int clockwise[] = { 0, 1, 2, 5, 8, 7, 6, 4, 0 };
+	int s = 0;
+	int p = sum_manhattan_distance_square(now);
+
+	//center
+	if (now[4] != 0)
+		++s;
+	//clockwise check
+	for (int i = 0; i < 8; ++i)
+	{
+		for (int j = 0; j < 8; ++j)
+		{
+			if (now[clockwise[i]] != 0)
+			{
+				if (goal[clockwise[i]] == now[clockwise[j]]
+					&& goal[clockwise[i + 1]] != now[clockwise[j + 1]])
+					s += 2;
+			}
+		}
+	}
+	return p + 3 * s;
+}
+
 int (*choose_cal_price_fun(int c))(const State& now)
 {
 	switch (c)
@@ -127,6 +154,11 @@ int (*choose_cal_price_fun(int c))(const State& now)
 		return sum_manhattan_distance_square;
 	case SUM_ROW_COL_SQUARE:
 		return sum_row_col_square;
+	case NILSSON_SEQUENCE_SCORE:
+		return nilsson_sequence_score;
+	default:
+		cout << "wrong h-function" << endl;
+		exit(-1);
 	}
 }
 
@@ -248,7 +280,7 @@ int main()
 
 	fout << "digraph EightDigit{" << endl;
 
-	int (*cal_price)(const State & now) = choose_cal_price_fun(MISPLACE_SQUARE);
+	int (*cal_price)(const State & now) = choose_cal_price_fun(5);
 
 	//check if ans exist
 	if (check_rev(state[1]) % 2 != check_rev(goal) % 2)
