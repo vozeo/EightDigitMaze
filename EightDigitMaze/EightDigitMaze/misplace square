@@ -1,66 +1,630 @@
 digraph EightDigit {
 subgraph cluster_1 {
-label="123456780"
+label="123
+456
+780"
 1;
 }
 1 -> 2;
 subgraph cluster_2 {
-label="123450786"
+label="123
+450
+786"
 2;
 }
 1 -> 3;
 subgraph cluster_3 {
-label="123456708"
+label="123
+456
+708"
 3;
 }
 2 -> 4;
 subgraph cluster_4 {
-label="120453786"
+label="120
+453
+786"
 4;
 }
 2 -> 5;
 subgraph cluster_5 {
-label="123405786"
+label="123
+405
+786"
 5;
 }
 2 -> 6;
 subgraph cluster_6 {
-label="123456780"
+label="123
+456
+780"
 6;
 }
 4 -> 7;
 subgraph cluster_7 {
-label="102453786"
+label="102
+453
+786"
 7;
 }
 7 -> 8;
 subgraph cluster_8 {
-label="012453786"
+label="012
+453
+786"
 8;
 }
 7 -> 9;
 subgraph cluster_9 {
-label="152403786"
+label="152
+403
+786"
 9;
+}
+8 -> 10;
+subgraph cluster_10 {
+label="412
+053
+786"
+10;
+}
+3 -> 11;
+subgraph cluster_11 {
+label="123
+406
+758"
+11;
+}
+3 -> 12;
+subgraph cluster_12 {
+label="123
+456
+078"
+12;
+}
+10 -> 13;
+subgraph cluster_13 {
+label="412
+753
+086"
+13;
+}
+10 -> 14;
+subgraph cluster_14 {
+label="412
+503
+786"
+14;
+}
+5 -> 15;
+subgraph cluster_15 {
+label="103
+425
+786"
+15;
+}
+5 -> 16;
+subgraph cluster_16 {
+label="123
+045
+786"
+16;
+}
+5 -> 17;
+subgraph cluster_17 {
+label="123
+485
+706"
+17;
+}
+12 -> 18;
+subgraph cluster_18 {
+label="123
+056
+478"
+18;
+}
+13 -> 19;
+subgraph cluster_19 {
+label="412
+753
+806"
+19;
+}
+9 -> 20;
+subgraph cluster_20 {
+label="152
+043
+786"
+20;
+}
+9 -> 21;
+subgraph cluster_21 {
+label="152
+483
+706"
+21;
+}
+9 -> 22;
+subgraph cluster_22 {
+label="152
+430
+786"
+22;
+}
+19 -> 23;
+subgraph cluster_23 {
+label="412
+703
+856"
+23;
+}
+19 -> 24;
+subgraph cluster_24 {
+label="412
+753
+860"
+24;
+}
+15 -> 25;
+subgraph cluster_25 {
+label="013
+425
+786"
+25;
+}
+15 -> 26;
+subgraph cluster_26 {
+label="130
+425
+786"
+26;
+}
+17 -> 27;
+subgraph cluster_27 {
+label="123
+485
+076"
+27;
+}
+17 -> 28;
+subgraph cluster_28 {
+label="123
+485
+760"
+28;
+}
+14 -> 29;
+subgraph cluster_29 {
+label="402
+513
+786"
+29;
+}
+14 -> 30;
+subgraph cluster_30 {
+label="412
+583
+706"
+30;
+}
+14 -> 31;
+subgraph cluster_31 {
+label="412
+530
+786"
+31;
+}
+11 -> 32;
+subgraph cluster_32 {
+label="103
+426
+758"
+32;
+}
+11 -> 33;
+subgraph cluster_33 {
+label="123
+046
+758"
+33;
+}
+11 -> 34;
+subgraph cluster_34 {
+label="123
+460
+758"
+34;
+}
+21 -> 35;
+subgraph cluster_35 {
+label="152
+483
+076"
+35;
+}
+21 -> 36;
+subgraph cluster_36 {
+label="152
+483
+760"
+36;
+}
+25 -> 37;
+subgraph cluster_37 {
+label="413
+025
+786"
+37;
+}
+18 -> 38;
+subgraph cluster_38 {
+label="023
+156
+478"
+38;
+}
+18 -> 39;
+subgraph cluster_39 {
+label="123
+506
+478"
+39;
+}
+20 -> 40;
+subgraph cluster_40 {
+label="052
+143
+786"
+40;
+}
+20 -> 41;
+subgraph cluster_41 {
+label="152
+743
+086"
+41;
+}
+16 -> 42;
+subgraph cluster_42 {
+label="023
+145
+786"
+42;
+}
+16 -> 43;
+subgraph cluster_43 {
+label="123
+745
+086"
+43;
+}
+22 -> 44;
+subgraph cluster_44 {
+label="150
+432
+786"
+44;
+}
+22 -> 45;
+subgraph cluster_45 {
+label="152
+436
+780"
+45;
+}
+26 -> 46;
+subgraph cluster_46 {
+label="135
+420
+786"
+46;
+}
+32 -> 47;
+subgraph cluster_47 {
+label="013
+426
+758"
+47;
+}
+32 -> 48;
+subgraph cluster_48 {
+label="130
+426
+758"
+48;
+}
+30 -> 49;
+subgraph cluster_49 {
+label="412
+583
+076"
+49;
+}
+30 -> 50;
+subgraph cluster_50 {
+label="412
+583
+760"
+50;
+}
+43 -> 51;
+subgraph cluster_51 {
+label="123
+745
+806"
+51;
+}
+24 -> 52;
+subgraph cluster_52 {
+label="412
+750
+863"
+52;
+}
+27 -> 53;
+subgraph cluster_53 {
+label="123
+085
+476"
+53;
+}
+51 -> 54;
+subgraph cluster_54 {
+label="123
+705
+846"
+54;
+}
+51 -> 55;
+subgraph cluster_55 {
+label="123
+745
+860"
+55;
+}
+23 -> 56;
+subgraph cluster_56 {
+label="402
+713
+856"
+56;
+}
+23 -> 57;
+subgraph cluster_57 {
+label="412
+073
+856"
+57;
+}
+23 -> 58;
+subgraph cluster_58 {
+label="412
+730
+856"
+58;
+}
+54 -> 59;
+subgraph cluster_59 {
+label="103
+725
+846"
+59;
+}
+54 -> 60;
+subgraph cluster_60 {
+label="123
+075
+846"
+60;
+}
+54 -> 61;
+subgraph cluster_61 {
+label="123
+750
+846"
+61;
+}
+41 -> 62;
+subgraph cluster_62 {
+label="152
+743
+806"
+62;
+}
+61 -> 63;
+subgraph cluster_63 {
+label="120
+753
+846"
+63;
+}
+61 -> 64;
+subgraph cluster_64 {
+label="123
+756
+840"
+64;
+}
+62 -> 65;
+subgraph cluster_65 {
+label="152
+703
+846"
+65;
+}
+62 -> 66;
+subgraph cluster_66 {
+label="152
+743
+860"
+66;
+}
+63 -> 67;
+subgraph cluster_67 {
+label="102
+753
+846"
+67;
+}
+65 -> 68;
+subgraph cluster_68 {
+label="152
+073
+846"
+68;
+}
+65 -> 69;
+subgraph cluster_69 {
+label="152
+730
+846"
+69;
+}
+67 -> 70;
+subgraph cluster_70 {
+label="012
+753
+846"
+70;
+}
+47 -> 71;
+subgraph cluster_71 {
+label="413
+026
+758"
+71;
+}
+42 -> 72;
+subgraph cluster_72 {
+label="203
+145
+786"
+72;
+}
+34 -> 73;
+subgraph cluster_73 {
+label="120
+463
+758"
+73;
+}
+34 -> 74;
+subgraph cluster_74 {
+label="123
+468
+750"
+74;
+}
+37 -> 75;
+subgraph cluster_75 {
+label="413
+725
+086"
+75;
+}
+37 -> 76;
+subgraph cluster_76 {
+label="413
+205
+786"
+76;
+}
+40 -> 77;
+subgraph cluster_77 {
+label="502
+143
+786"
+77;
+}
+70 -> 78;
+subgraph cluster_78 {
+label="712
+053
+846"
+78;
+}
+38 -> 79;
+subgraph cluster_79 {
+label="203
+156
+478"
+79;
+}
+35 -> 80;
+subgraph cluster_80 {
+label="152
+083
+476"
+80;
+}
+33 -> 81;
+subgraph cluster_81 {
+label="023
+146
+758"
+81;
+}
+33 -> 82;
+subgraph cluster_82 {
+label="123
+746
+058"
+82;
+}
+73 -> 83;
+subgraph cluster_83 {
+label="102
+463
+758"
+83;
 }
 subgraph cluster_2 {
-bgcolor=red;
+bgcolor=darkolivegreen1;
 2;
 }
-subgraph cluster_4 {
-bgcolor=red;
-4;
+subgraph cluster_5 {
+bgcolor=darkolivegreen1;
+5;
 }
-subgraph cluster_7 {
-bgcolor=red;
-7;
+subgraph cluster_16 {
+bgcolor=darkolivegreen1;
+16;
 }
-subgraph cluster_9 {
-bgcolor=red;
-9;
+subgraph cluster_43 {
+bgcolor=darkolivegreen1;
+43;
+}
+subgraph cluster_51 {
+bgcolor=darkolivegreen1;
+51;
+}
+subgraph cluster_54 {
+bgcolor=darkolivegreen1;
+54;
+}
+subgraph cluster_61 {
+bgcolor=darkolivegreen1;
+61;
+}
+subgraph cluster_63 {
+bgcolor=darkolivegreen1;
+63;
+}
+subgraph cluster_67 {
+bgcolor=darkolivegreen1;
+67;
+}
+subgraph cluster_70 {
+bgcolor=darkolivegreen1;
+70;
+}
+subgraph cluster_78 {
+bgcolor=darkolivegreen1;
+78;
 }
 subgraph cluster_1 {
-bgcolor=red;
+bgcolor=darkolivegreen1;
 1;
 }
 }

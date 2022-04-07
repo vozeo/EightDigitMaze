@@ -163,8 +163,11 @@ int A_star(int (*cal_price)(const State& now), const char name[]) {
     int cnt = 1, index = 0;
     states.push(cnt);
     fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
-    for (int i = 0; i < 9; ++i)
+    for (int i = 0; i < 9; ++i) {
         fout << state[cnt][i];
+        if (i == 2 || i == 5)
+            fout << "\n";
+    }
     fout << "\"\n" << cnt << ";\n}\n";
     while (!states.empty()) {
         index = states.top();
@@ -192,8 +195,11 @@ int A_star(int (*cal_price)(const State& now), const char name[]) {
                     parent[cnt] = index;
                     fout << index << " -> " << cnt << ";" << endl;
                     fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
-                    for (int i = 0; i < 9; ++i)
+                    for (int i = 0; i < 9; ++i) {
                         fout << state[cnt][i];
+                        if (i == 2 || i == 5)
+                            fout << "\n";
+                    }
                     fout << "\"\n" << cnt << ";\n}\n";
                     states.push(cnt);
                 }
@@ -211,7 +217,7 @@ int A_star(int (*cal_price)(const State& now), const char name[]) {
         while (!stack.empty()) {
             int now = stack.top();
             stack.pop();
-            fout << "subgraph cluster_" << now << " {\nbgcolor=red;\n" << now << ";\n}\n";
+            fout << "subgraph cluster_" << now << " {\nbgcolor=darkolivegreen1;\n" << now << ";\n}\n";
         }
     }
     fout << "}\n" << endl;
