@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <cstring>
 #include <cmath>
@@ -153,23 +155,25 @@ void init() {
     memset(next_edge, 0, sizeof(next_edge));
 }
 
-int A_star(int (*cal_price)(const State &now)) {
+int A_star(int (*cal_price)(const State &now), const char name[]) {
     init();
-    ofstream fout("out.txt");
+    ofstream fout(name, ios::out);
     fout << "digraph EightDigit{" << endl;
     priority_queue<int, vector<int>, decltype(comp_price)> states(comp_price);
-    int cnt = 1;
+    int cnt = 1, index = 0;
     states.push(cnt);
     while (!states.empty()) {
-        int index = states.top();
+        index = states.top();
         states.pop();
         State &s = state[index];
         if (!memcmp(s, goal, sizeof(State)))
-            return index;
+            break;
         int z;
-        for (z = 0; z < 9; ++z)
-            if (!s[z])
+        for (z = 0; z < 9; ++z) {
+            if (!s[z]) {
                 break;
+            }
+        }
         int x = z / 3, y = z % 3;
         for (int d = 0; d < 4; ++d) {
             int x_new = x + DX[d], y_new = y + DY[d];
@@ -190,7 +194,7 @@ int A_star(int (*cal_price)(const State &now)) {
     }
     fout << "}" << endl;
     fout.close();
-    return 0;
+    return index;
 }
 
 void print_board(State &s) {
@@ -265,7 +269,7 @@ int main() {
     QueryPerformanceFrequency(&tc);
     QueryPerformanceCounter(&t1);
 
-    int ans = A_star(cal_price);
+    int ans = A_star(cal_price, FUNC_NAME[0]);
 
     // end timing
     QueryPerformanceCounter(&t2);
@@ -279,7 +283,7 @@ int main() {
         for (int i = 2; i <= N; ++i) {
             QueryPerformanceCounter(&t1);
             cal_price = choose_cal_price_fun(i);
-            ans = A_star(cal_price);
+            ans = A_star(cal_price, FUNC_NAME[i - 1]);
             QueryPerformanceCounter(&t2);
             my_time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
             if (ans > 0) {
@@ -287,11 +291,14 @@ int main() {
             }
         }
         cout << "Drawing search tree..." << endl;
-        system("dot -Tpng out.txt -o out.png");
+        for (int i = 0; i < N; ++i) {
+            char out[256];
+            sprintf(out, "dot -Tpng \"%s\" -o \"%s.png\"\n", FUNC_NAME[i], FUNC_NAME[i]);
+            system(out);
+        }
         cout << "Success." << endl;
     } else {
         cout << "No Solution!" << endl;
     }
-    
     return 0;
 }
