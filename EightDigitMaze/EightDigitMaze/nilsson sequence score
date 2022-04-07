@@ -1,13 +1,82 @@
-digraph EightDigit{
-1 -> 2;
-1 -> 3;
-2 -> 4;
-2 -> 5;
-2 -> 6;
-5 -> 7;
-5 -> 8;
-5 -> 9;
-4 -> 10;
-10 -> 11;
-10 -> 12;
+digraph EightDigit {
+subgraph cluster_1 {
+label="123456780"
+1;
 }
+1 -> 2;
+subgraph cluster_2 {
+label="123450786"
+2;
+}
+1 -> 3;
+subgraph cluster_3 {
+label="123456708"
+3;
+}
+2 -> 4;
+subgraph cluster_4 {
+label="120453786"
+4;
+}
+2 -> 5;
+subgraph cluster_5 {
+label="123405786"
+5;
+}
+2 -> 6;
+subgraph cluster_6 {
+label="123456780"
+6;
+}
+5 -> 7;
+subgraph cluster_7 {
+label="103425786"
+7;
+}
+5 -> 8;
+subgraph cluster_8 {
+label="123045786"
+8;
+}
+5 -> 9;
+subgraph cluster_9 {
+label="123485706"
+9;
+}
+4 -> 10;
+subgraph cluster_10 {
+label="102453786"
+10;
+}
+10 -> 11;
+subgraph cluster_11 {
+label="012453786"
+11;
+}
+10 -> 12;
+subgraph cluster_12 {
+label="152403786"
+12;
+}
+subgraph cluster_2 {
+bgcolor=red;
+2;
+}
+subgraph cluster_4 {
+bgcolor=red;
+4;
+}
+subgraph cluster_10 {
+bgcolor=red;
+10;
+}
+subgraph cluster_12 {
+bgcolor=red;
+12;
+}
+subgraph cluster_1 {
+bgcolor=red;
+1;
+}
+}
+

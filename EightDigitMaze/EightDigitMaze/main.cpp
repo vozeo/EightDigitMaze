@@ -155,17 +155,21 @@ void init() {
     memset(next_edge, 0, sizeof(next_edge));
 }
 
-int A_star(int (*cal_price)(const State &now), const char name[]) {
+int A_star(int (*cal_price)(const State& now), const char name[]) {
     init();
     ofstream fout(name, ios::out);
-    fout << "digraph EightDigit{" << endl;
+    fout << "digraph EightDigit {" << endl;
     priority_queue<int, vector<int>, decltype(comp_price)> states(comp_price);
     int cnt = 1, index = 0;
     states.push(cnt);
+    fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
+    for (int i = 0; i < 9; ++i)
+        fout << state[cnt][i];
+    fout << "\"\n" << cnt << ";\n}\n";
     while (!states.empty()) {
         index = states.top();
         states.pop();
-        State &s = state[index];
+        State& s = state[index];
         if (!memcmp(s, goal, sizeof(State)))
             break;
         int z;
@@ -179,20 +183,38 @@ int A_star(int (*cal_price)(const State &now), const char name[]) {
             int x_new = x + DX[d], y_new = y + DY[d];
             if (x_new >= 0 && x_new < 3 && y_new >= 0 && y_new < 3) {
                 int z_new = x_new * 3 + y_new;
-                State &t = state[cnt + 1];
+                State& t = state[cnt + 1];
                 memcpy(&t, &s, sizeof(s));
                 swap(t[z], t[z_new]);
                 if (insert(cnt + 1)) {
                     dis[++cnt] = dis[index] + 1;
                     price[cnt] = dis[cnt] + cal_price(t);
                     parent[cnt] = index;
-                    fout << index << /* "," << price[index] << */ " -> " << cnt << /*"," << price[cnt] << */ ";" << endl;
+                    fout << index << " -> " << cnt << ";" << endl;
+                    fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
+                    for (int i = 0; i < 9; ++i)
+                        fout << state[cnt][i];
+                    fout << "\"\n" << cnt << ";\n}\n";
                     states.push(cnt);
                 }
             }
         }
     }
-    fout << "}" << endl;
+    if (index > 0) {
+        int end = index;
+        stack<int> stack;
+        stack.push(1);
+        while (1 != end) {
+            stack.push(end);
+            end = parent[end];
+        }
+        while (!stack.empty()) {
+            int now = stack.top();
+            stack.pop();
+            fout << "subgraph cluster_" << now << " {\nbgcolor=red;\n" << now << ";\n}\n";
+        }
+    }
+    fout << "}\n" << endl;
     fout.close();
     return index;
 }
