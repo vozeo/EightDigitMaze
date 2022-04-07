@@ -306,8 +306,7 @@ int main() {
     if (ans > 0) {
         cout << "Total steps: " << dis[ans] << endl << endl;
         print_paths(1, ans);
-        cout << "A*search time " << my_time << endl;
-        cout << "function h(n) of " << FUNC_NAME[0] << "'s time is " << my_time << endl;
+        cout << "Function h(n) of " << FUNC_NAME[0] << "'s time is " << my_time << endl;
         for (int i = 2; i <= N; ++i) {
             QueryPerformanceCounter(&t1);
             cal_price = choose_cal_price_fun(i);
@@ -315,7 +314,7 @@ int main() {
             QueryPerformanceCounter(&t2);
             my_time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
             if (ans > 0) {
-                cout << "function h(n) of " << FUNC_NAME[i - 1] << "'s time is " << my_time << endl;
+                cout << "Function h(n) of " << FUNC_NAME[i - 1] << "'s time is " << my_time << endl;
             }
         }
         cout << "Drawing search tree..." << endl;
