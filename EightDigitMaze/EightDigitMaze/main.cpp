@@ -31,7 +31,7 @@ int cantor_hash(const State& s) {
 	return res;
 }
 
-bool insert(const int &now) {
+bool insert(const int& now) {
 	int hash = cantor_hash(state[now]), u = head[hash];
 	while (u) {
 		if (!memcmp(state[u], state[now], sizeof(State)))
@@ -42,7 +42,11 @@ bool insert(const int &now) {
 	return true;
 }
 
-int cal_price(const State& now) {
+#define MISPLACE_SQUARE               1
+#define SUM_EUCLEDIAN_DISTANCE_SQUARE 2
+#define SUM_MANHATTAN_DISTANCE_SQUARE 3
+
+int misplace_square(const State& now) {
 	int price = 0;
 	for (int i = 0; i < 9; ++i) {
 		for (int j = 0; j < 9; ++j) {
@@ -55,12 +59,49 @@ int cal_price(const State& now) {
 	return price;
 }
 
+int sum_eucledian_distance_square(const State& now) {
+	int price = 0;
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			if (now[i] == goal[j] && i != j && now[i] != 0) {
+				int x = (i / 3 - j / 3), y = (i % 3 - j % 3);
+				price += x * x + y * y;
+			}
+		}
+	}
+	return price;
+}
+
+int sum_manhattan_distance_square(const State& now) {
+	int price = 0;
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			if (now[i] == goal[j] && i != j && now[i] != 0) {
+				int x = (int)fabs(i / 3 - j / 3), y = (int)fabs(i % 3 - j % 3);
+				price += (x + y);
+			}
+		}
+	}
+	return price;
+}
+
+int (*choose_cal_price_fun(int c))(const State& now) {
+	switch (c) {
+		case MISPLACE_SQUARE:
+			return misplace_square;
+		case SUM_EUCLEDIAN_DISTANCE_SQUARE:
+			return sum_eucledian_distance_square;
+		case SUM_MANHATTAN_DISTANCE_SQUARE:
+			return sum_manhattan_distance_square;
+	}
+}
+
 const int DX[] = { -1, 0, 1, 0 };
 const int DY[] = { 0, -1, 0, 1 };
 
 ofstream fout("out.txt");
 
-int A_star() {
+int A_star(int(*cal_price)(const State& now)) {
 	int cnt = 1;
 	states.push(cnt);
 	while (!states.empty()) {
@@ -130,7 +171,7 @@ void print_paths(int start, int end) {
 //2 3 4 1 5 0 7 6 8
 
 int main() {
-	for (int i = 0; i < 9; ++i) { 
+	for (int i = 0; i < 9; ++i) {
 		cin >> state[1][i];
 	}
 	for (int i = 0; i < 9; ++i) {
@@ -143,7 +184,8 @@ int main() {
 	cout << endl;
 
 	fout << "digraph EightDigit{" << endl;
-	int ans = A_star();
+	int (*cal_price)(const State & now) = choose_cal_price_fun(SUM_MANHATTAN_DISTANCE_SQUARE);
+	int ans = A_star(cal_price);
 	if (ans > 0) {
 		printf("Total paths: %d\n\n", dis[ans]);
 		print_paths(1, ans);
