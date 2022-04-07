@@ -51,12 +51,13 @@ bool insert(const int& now)
 #define MISPLACE_SQUARE 1
 #define SUM_EUCLEDIAN_DISTANCE_SQUARE 2
 #define SUM_MANHATTAN_DISTANCE_SQUARE 3
+#define SUM_ROW_COL_SQUARE 4
 
 int misplace_square(const State& now)
 {
 	int price = 0;
 	for (int i = 0; i < 9; ++i) {
-		if (now[i] != goal[i])
+		if (now[i] != goal[i] && now[i] != 0)
 			++price;
 	}
 	return price;
@@ -82,6 +83,7 @@ int sum_eucledian_distance_square(const State& now)
 int sum_manhattan_distance_square(const State& now)
 {
 	int price = 0;
+
 	for (int i = 0; i < 9; i++)
 	{
 		for (int j = 0; j < 9; j++)
@@ -90,6 +92,23 @@ int sum_manhattan_distance_square(const State& now)
 			{
 				int x = abs(i / 3 - j / 3), y = abs(i % 3 - j % 3);
 				price += (x + y);
+			}
+		}
+	}
+	return price;
+}
+
+int sum_row_col_square(const State& now)
+{
+	int price = 0;
+
+	for (int i = 0; i < 9; ++i) {
+		for (int j = 0; j < 9; ++j) {
+			if (now[i] == goal[j] && i != j && now[i] != 0) {
+				if (i / 3 != j / 3)
+					++price;
+				if (i % 3 != j % 3)
+					++price;
 			}
 		}
 	}
@@ -106,6 +125,8 @@ int (*choose_cal_price_fun(int c))(const State& now)
 		return sum_eucledian_distance_square;
 	case SUM_MANHATTAN_DISTANCE_SQUARE:
 		return sum_manhattan_distance_square;
+	case SUM_ROW_COL_SQUARE:
+		return sum_row_col_square;
 	}
 }
 
@@ -195,9 +216,9 @@ int check_rev(const State& now)
 	int rev = 0;
 	for (int i = 0; i < 9; ++i)
 	{
-		for (int j = i+1; j < 9; ++j)
+		for (int j = i + 1; j < 9; ++j)
 		{
-			if (now[i]!=0&&now[j]!=0&&now[i]>now[j])
+			if (now[i] != 0 && now[j] != 0 && now[i] > now[j])
 			{
 				++rev;
 			}
@@ -230,7 +251,7 @@ int main()
 	int (*cal_price)(const State & now) = choose_cal_price_fun(MISPLACE_SQUARE);
 
 	//check if ans exist
-	if (check_rev(state[1]) % 2 != check_rev(goal)%2)
+	if (check_rev(state[1]) % 2 != check_rev(goal) % 2)
 	{
 		cout << "No solution" << endl;
 		return 0;
