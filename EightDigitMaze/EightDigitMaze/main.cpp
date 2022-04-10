@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <fstream>
 #include <Windows.h>
+#include<algorithm>
+#include<sstream>
 
 using namespace std;
 
@@ -296,20 +298,78 @@ int check_rev(const State& now) {
 const int N = 5;
 const char* FUNC_NAME[] = { "misplace square", "sum eucledian distance square", "sum manhattan distance square", "sum row col square", "nilsson sequence score" };
 
-int main() {
-    cout << "Please input start state: ";
-    for (int i = 0; i < 9; ++i) {
-        cin >> state[1][i];
+void generate_data()
+{
+    int (*cal_price)(const State & now) = choose_cal_price_fun(1);
+    for (int i = 0; i < 9; i++)
+    {
+        state[1][i] = i;
+        goal[i] = i;
     }
-    cout << "Please input goal state: ";
-    for (int i = 0; i < 9; ++i) {
-        cin >> goal[i];
+    int depthes[12] = {};
+    while(1)
+    {
+        if (next_permutation(state[1], state[1] + 8) == 0)
+            break;
+        random_shuffle(goal, goal + 8);
+        int flag = 0;
+        for (int i = 0; i < 12; i++)
+        {
+            if (depthes[i] >= 100)
+                flag++;
+        }
+        if (flag >= 11)
+            break;
+        //check if ans exist
+        if (check_rev(state[1]) % 2 != check_rev(goal) % 2) {
+            //cout << "No solution" << endl;
+            continue;
+        }
+        int ans = A_star(cal_price, FUNC_NAME[0]);
+        if (dis[ans] % 2 == 0 && dis[ans] <= 24 && dis[ans] >= 2)
+        {
+            depthes[dis[ans]/2-1]++;
+            if (depthes[dis[ans]/2-1] > 100)
+                continue;
+            stringstream ss;
+            ss << "data" << dis[ans]<<".txt";
+            ofstream fout(ss.str(), ios::app);
+            for (int i = 0; i < 9; i++)
+            {
+                fout << state[1][i] << ' ';
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                fout << goal[i] << ' ';
+            }
+            fout << endl;
+            fout.close();
+        }
     }
-    cout << "\nStart: " << endl;
-    print_board(state[1]);
-    cout << "\nGoal:" << endl;
-    print_board(goal);
-    cout << endl;
+    return;
+}
+/*if display pics and transit state*/
+int display()
+{
+    bool draw = false;
+    bool input = false;
+    if (input)
+    {
+        cout << "Please input start state: ";
+        for (int i = 0; i < 9; ++i) {
+            cin >> state[1][i];
+        }
+        cout << "Please input goal state: ";
+        for (int i = 0; i < 9; ++i) {
+            cin >> goal[i];
+        }
+        cout << "\nStart: " << endl;
+        print_board(state[1]);
+        cout << "\nGoal:" << endl;
+        print_board(goal);
+        cout << endl;
+    }
+
 
     int (*cal_price)(const State & now) = choose_cal_price_fun(1);
 
@@ -344,17 +404,25 @@ int main() {
                 cout << "Function h(n) of " << FUNC_NAME[i - 1] << "'s time is " << my_time << endl;
             }
         }
-        cout << "Drawing search tree..." << endl;
-        for (int i = 0; i < N; ++i) {
-            char out[256];
-            sprintf(out, "dot -Tpng \"%s\" -o \"%s.png\"\n", FUNC_NAME[i], FUNC_NAME[i]);
-            system(out);
+        if (draw)
+        {
+            cout << "Drawing search tree..." << endl;
+            for (int i = 0; i < N; ++i) {
+                char out[256];
+                sprintf(out, "dot -Tpng \"%s\" -o \"%s.png\"\n", FUNC_NAME[i], FUNC_NAME[i]);
+                system(out);
+            }
+            cout << "Success." << endl;
         }
-        cout << "Success." << endl;
     }
     else {
         cout << "No Solution!" << endl;
         //invalid under normal circumstances
     }
+    return 0;
+}
+int main() 
+{
+    generate_data();
     return 0;
 }
