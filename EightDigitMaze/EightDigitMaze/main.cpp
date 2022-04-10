@@ -17,9 +17,9 @@ const int STATE = 362800 + 5;
 
 State state[STATE], goal;
 
-const int FAC[] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880};
+const int FAC[] = { 1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880 };
 
-int cantor_hash(const State &s) {
+int cantor_hash(const State& s) {
     int res = 0;
     for (int i = 0; i < 9; ++i) {
         int smaller = 0;
@@ -30,14 +30,15 @@ int cantor_hash(const State &s) {
     return res;
 }
 
+//admissable h function
 const int MISPLACE_SQUARE = 1;
 const int SUM_EUCLEDIAN_DISTANCE_SQUARE = 2;
 const int SUM_MANHATTAN_DISTANCE_SQUARE = 3;
 const int SUM_ROW_COL_SQUARE = 4;
-//non admissable
+//non admissable h function
 const int NILSSON_SEQUENCE_SCORE = 5;
 
-int misplace_square(const State &now) {
+int misplace_square(const State& now) {
     int price = 0;
     for (int i = 0; i < 9; ++i) {
         if (now[i] != goal[i] && now[i] != 0)
@@ -46,7 +47,7 @@ int misplace_square(const State &now) {
     return price;
 }
 
-int sum_eucledian_distance_square(const State &now) {
+int sum_eucledian_distance_square(const State& now) {
     int price = 0;
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
@@ -59,7 +60,7 @@ int sum_eucledian_distance_square(const State &now) {
     return price;
 }
 
-int sum_manhattan_distance_square(const State &now) {
+int sum_manhattan_distance_square(const State& now) {
     int price = 0;
 
     for (int i = 0; i < 9; i++) {
@@ -73,7 +74,7 @@ int sum_manhattan_distance_square(const State &now) {
     return price;
 }
 
-int sum_row_col_square(const State &now) {
+int sum_row_col_square(const State& now) {
     int price = 0;
 
     for (int i = 0; i < 9; ++i) {
@@ -89,8 +90,8 @@ int sum_row_col_square(const State &now) {
     return price;
 }
 
-int nilsson_sequence_score(const State &now) {
-    int clockwise[] = {0, 1, 2, 5, 8, 7, 6, 4, 0};
+int nilsson_sequence_score(const State& now) {
+    int clockwise[] = { 0, 1, 2, 5, 8, 7, 6, 4, 0 };
     int s = 0;
     int p = sum_manhattan_distance_square(now);
 
@@ -110,31 +111,36 @@ int nilsson_sequence_score(const State &now) {
     return p + 3 * s;
 }
 
-int (*choose_cal_price_fun(int c))(const State &now) {
+int (*choose_cal_price_fun(int c))(const State& now) {
     switch (c) {
-        case MISPLACE_SQUARE:
-            return misplace_square;
-        case SUM_EUCLEDIAN_DISTANCE_SQUARE:
-            return sum_eucledian_distance_square;
-        case SUM_MANHATTAN_DISTANCE_SQUARE:
-            return sum_manhattan_distance_square;
-        case SUM_ROW_COL_SQUARE:
-            return sum_row_col_square;
-        case NILSSON_SEQUENCE_SCORE:
-            return nilsson_sequence_score;
-        default:
-            cout << "wrong h-function" << endl;
-            exit(-1);
+    case MISPLACE_SQUARE:
+        return misplace_square;
+    case SUM_EUCLEDIAN_DISTANCE_SQUARE:
+        return sum_eucledian_distance_square;
+    case SUM_MANHATTAN_DISTANCE_SQUARE:
+        return sum_manhattan_distance_square;
+    case SUM_ROW_COL_SQUARE:
+        return sum_row_col_square;
+    case NILSSON_SEQUENCE_SCORE:
+        return nilsson_sequence_score;
+    default:
+        cout << "wrong h-function" << endl;
+        exit(-1);
     }
 }
 
-const int DX[] = {-1, 0, 1, 0};
-const int DY[] = {0, -1, 0, 1};
+const int DX[] = { -1, 0, 1, 0 };
+const int DY[] = { 0, -1, 0, 1 };
 
 int dis[STATE], parent[STATE], price[STATE], head[STATE], next_edge[STATE];
 
 auto comp_price = [](const int& a, const int& b) { return price[a] > price[b]; };
 
+/*
+* check if the state has been searched
+* @param now serial number
+* @return whether state has been searched
+*/
 bool insert(const int& now) {
     int hash = cantor_hash(state[now]), u = head[hash];
     while (u) {
@@ -146,6 +152,7 @@ bool insert(const int& now) {
     return true;
 }
 
+//initialize
 void init() {
     memset(state + 2, 0, sizeof(state) - 2 * sizeof(State));
     memset(dis, 0, sizeof(dis));
@@ -155,12 +162,22 @@ void init() {
     memset(next_edge, 0, sizeof(next_edge));
 }
 
+/*
+* implant the A start algorithm
+* @param cal_price the h function used
+* @param name name of file
+* @return index of end state
+*/
 int A_star(int (*cal_price)(const State& now), const char name[]) {
     init();
     ofstream fout(name, ios::out);
     fout << "digraph EightDigit {" << endl;
+
+    //maintain a priority to find the best state
     priority_queue<int, vector<int>, decltype(comp_price)> states(comp_price);
     int cnt = 1, index = 0;
+    //cnt serial number of the state searched
+    //index the serial number of the state that is taken out of the queue
     states.push(cnt);
     fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
     for (int i = 0; i < 9; ++i) {
@@ -212,7 +229,7 @@ int A_star(int (*cal_price)(const State& now), const char name[]) {
         stack.push(1);
         while (1 != end) {
             stack.push(end);
-            end = parent[end];
+            end = parent[end]; 
         }
         while (!stack.empty()) {
             int now = stack.top();
@@ -225,7 +242,8 @@ int A_star(int (*cal_price)(const State& now), const char name[]) {
     return index;
 }
 
-void print_board(State &s) {
+//print state
+void print_board(State& s) {
     for (int i = 0; i < 9; ++i) {
         if (i % 3 == 0 && i > 0) {
             cout << endl;
@@ -235,6 +253,10 @@ void print_board(State &s) {
     cout << endl;
 }
 
+/*
+* print the transition states
+* @param start end the serial number of the initial and end states
+*/
 void print_paths(int start, int end) {
     int count = 1;
     stack<int> stack;
@@ -250,7 +272,12 @@ void print_paths(int start, int end) {
     }
 }
 
-int check_rev(const State &now) {
+/*
+* if the end state is reachable
+* @param now the present(initial) state
+* @return number of tiles in reverse order 
+*/
+int check_rev(const State& now) {
     int rev = 0;
     for (int i = 0; i < 9; ++i) {
         for (int j = i + 1; j < 9; ++j) {
@@ -284,7 +311,7 @@ int main() {
     print_board(goal);
     cout << endl;
 
-    int (*cal_price)(const State &now) = choose_cal_price_fun(1);
+    int (*cal_price)(const State & now) = choose_cal_price_fun(1);
 
     //check if ans exist
     if (check_rev(state[1]) % 2 != check_rev(goal) % 2) {
@@ -301,7 +328,7 @@ int main() {
 
     // end timing
     QueryPerformanceCounter(&t2);
-    double my_time = (double) (t2.QuadPart - t1.QuadPart) / (double) tc.QuadPart;
+    double my_time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
 
     if (ans > 0) {
         cout << "Total steps: " << dis[ans] << endl << endl;
@@ -324,8 +351,10 @@ int main() {
             system(out);
         }
         cout << "Success." << endl;
-    } else {
+    }
+    else {
         cout << "No Solution!" << endl;
+        //invalid under normal circumstances
     }
     return 0;
 }
