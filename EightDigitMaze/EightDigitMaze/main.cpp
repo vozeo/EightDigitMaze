@@ -34,11 +34,12 @@ int cantor_hash(const State& s) {
 
 //admissable h function
 const int MISPLACE_SQUARE = 1;
-const int SUM_EUCLEDIAN_DISTANCE_SQUARE = 2;
+const int SUM_EUCLEDIAN_DISTANCE = 2;
 const int SUM_MANHATTAN_DISTANCE_SQUARE = 3;
 const int SUM_ROW_COL_SQUARE = 4;
 //non admissable h function
-const int NILSSON_SEQUENCE_SCORE = 5;
+const int SUM_EUCLEDIAN_DISTANCE_POW2 = 5;
+const int NILSSON_SEQUENCE_SCORE = 6;
 
 int misplace_square(const State& now) {
 	int price = 0;
@@ -47,6 +48,19 @@ int misplace_square(const State& now) {
 			++price;
 	}
 	return price;
+}
+
+int sum_eucledian_distance(const State& now) {
+	double price = 0;
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			if (now[i] == goal[j] && i != j && now[i] != 0) {
+				int x = (i / 3 - j / 3), y = (i % 3 - j % 3);
+				price += sqrt(x * x + y * y);
+			}
+		}
+	}
+	return int(price);
 }
 
 int sum_eucledian_distance_square(const State& now) {
@@ -117,12 +131,14 @@ int (*choose_cal_price_fun(int c))(const State& now) {
 	switch (c) {
 	case MISPLACE_SQUARE:
 		return misplace_square;
-	case SUM_EUCLEDIAN_DISTANCE_SQUARE:
-		return sum_eucledian_distance_square;
+	case SUM_EUCLEDIAN_DISTANCE:
+		return sum_eucledian_distance;
 	case SUM_MANHATTAN_DISTANCE_SQUARE:
 		return sum_manhattan_distance_square;
 	case SUM_ROW_COL_SQUARE:
 		return sum_row_col_square;
+	case SUM_EUCLEDIAN_DISTANCE_POW2:
+		return sum_eucledian_distance_square;
 	case NILSSON_SEQUENCE_SCORE:
 		return nilsson_sequence_score;
 	default:
@@ -306,8 +322,8 @@ int check_rev(const State& now) {
 // 2 3 4 1 5 0 7 6 8
 
 // the number of h(n)
-const int N = 5;
-const char* FUNC_NAME[] = { "misplace square", "sum eucledian distance square", "sum manhattan distance square", "sum row col square", "nilsson sequence score" };
+const int N = 6;
+const char* FUNC_NAME[] = { "misplace square", "sum eucledian distance", "sum manhattan distance square", "sum row col square", "sum eucledian distance pow 2","nilsson sequence score" };
 
 int generate_bfs(int depth)
 {
@@ -663,7 +679,7 @@ int test()
 int main()
 {
 	//generate_data_2();
-	//test();
-	display();
+	test();
+	//display();
 	return 0;
 }
