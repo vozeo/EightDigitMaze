@@ -679,7 +679,7 @@ int test()
 int main()
 {
 	//generate_data_2();
-	test();
-	//display();
+	//test();
+	display();
 	return 0;
 }
