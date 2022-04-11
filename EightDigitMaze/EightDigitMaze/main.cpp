@@ -170,10 +170,11 @@ void init() {
 * @param name name of file
 * @return index of end state
 */
-int A_star(int (*cal_price)(const State& now), const char name[],int &node_num) {
+int A_star(int (*cal_price)(const State& now), const char name[], int& node_num,bool is_display) {
 	init();
 	ofstream fout(name, ios::out);
-	fout << "digraph EightDigit {" << endl;
+	if (is_display)
+		fout << "digraph EightDigit {" << endl;
 
 	//maintain a priority to find the best state
 	priority_queue<int, vector<int>, decltype(comp_price)> states(comp_price);
@@ -181,13 +182,16 @@ int A_star(int (*cal_price)(const State& now), const char name[],int &node_num) 
 	//cnt serial number of the state searched
 	//index the serial number of the state that is taken out of the queue
 	states.push(cnt);
-	fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
-	for (int i = 0; i < 9; ++i) {
-		fout << state[cnt][i];
-		if (i == 2 || i == 5)
-			fout << "\n";
+	if (is_display)
+	{
+		fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
+		for (int i = 0; i < 9; ++i) {
+			fout << state[cnt][i];
+			if (i == 2 || i == 5)
+				fout << "\n";
+		}
+		fout << "\"\n" << cnt << ";\n}\n";
 	}
-	fout << "\"\n" << cnt << ";\n}\n";
 	while (!states.empty()) {
 		index = states.top();
 		states.pop();
@@ -212,36 +216,42 @@ int A_star(int (*cal_price)(const State& now), const char name[],int &node_num) 
 					dis[++cnt] = dis[index] + 1;
 					price[cnt] = dis[cnt] + cal_price(t);
 					parent[cnt] = index;
-					fout << index << " -> " << cnt << ";" << endl;
-					fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
-					for (int i = 0; i < 9; ++i) {
-						fout << state[cnt][i];
-						if (i == 2 || i == 5)
-							fout << "\n";
+					if (is_display)
+					{
+						fout << index << " -> " << cnt << ";" << endl;
+						fout << "subgraph cluster_" << cnt << " {\nlabel=\"";
+						for (int i = 0; i < 9; ++i) {
+							fout << state[cnt][i];
+							if (i == 2 || i == 5)
+								fout << "\n";
+						}
+						fout << "\"\n" << cnt << ";\n}\n";
 					}
-					fout << "\"\n" << cnt << ";\n}\n";
 					states.push(cnt);
 				}
 			}
 		}
 	}
 	node_num = cnt;
-	if (index > 0) {
-		int end = index;
-		stack<int> stack;
-		stack.push(1);
-		while (1 != end) {
-			stack.push(end);
-			end = parent[end];
+	if (is_display)
+	{
+		if (index > 0) {
+			int end = index;
+			stack<int> stack;
+			stack.push(1);
+			while (1 != end) {
+				stack.push(end);
+				end = parent[end];
+			}
+			while (!stack.empty()) {
+				int now = stack.top();
+				stack.pop();
+				fout << "subgraph cluster_" << now << " {\nbgcolor=darkolivegreen1;\n" << now << ";\n}\n";
+			}
 		}
-		while (!stack.empty()) {
-			int now = stack.top();
-			stack.pop();
-			fout << "subgraph cluster_" << now << " {\nbgcolor=darkolivegreen1;\n" << now << ";\n}\n";
-		}
+		fout << "}\n" << endl;
+		fout.close();
 	}
-	fout << "}\n" << endl;
-	fout.close();
 	return index;
 }
 
@@ -299,63 +309,168 @@ int check_rev(const State& now) {
 const int N = 5;
 const char* FUNC_NAME[] = { "misplace square", "sum eucledian distance square", "sum manhattan distance square", "sum row col square", "nilsson sequence score" };
 
-//if generate test data
-void generate_data()
+int generate_bfs(int depth)
 {
-	int (*cal_price)(const State & now) = choose_cal_price_fun(1);
+	init();
+
+	//maintain a priority to find the best state
+	queue<int> states;
+	int cnt = 1, index = 0;
+	//cnt serial number of the state searched
+	//index the serial number of the state that is taken out of the queue
+	states.push(cnt);
+	while (!states.empty()) {
+		bool depth_reached = false;
+		index = states.front();
+		states.pop();
+		State& s = state[index];
+		int z;
+		for (z = 0; z < 9; ++z) {
+			if (!s[z]) {
+				break;
+			}
+		}
+		int x = z / 3, y = z % 3;
+		for (int d = 0; d < 4; ++d) {
+			int x_new = x + DX[d], y_new = y + DY[d];
+			if (x_new >= 0 && x_new < 3 && y_new >= 0 && y_new < 3) {
+				int z_new = x_new * 3 + y_new;
+				State& t = state[cnt + 1];
+				memcpy(&t, &s, sizeof(s));
+				swap(t[z], t[z_new]);
+				if (insert(cnt + 1)) {
+					dis[++cnt] = dis[index] + 1;
+					price[cnt] = dis[cnt];
+					parent[cnt] = index;
+					states.push(cnt);
+					if (dis[cnt] == depth)
+					{
+						depth_reached = true;
+						break;
+					}
+				}
+			}
+		}
+		if (depth_reached)
+			break;
+	}
+	return index;
+}
+
+const int ADD = 10;
+int choose_rand(int begin,int end,int arr[ADD])
+{
+	srand((unsigned)time(0));
+	if (end - begin + 1 < ADD)
+	{
+		for (int i = 0; i < end - begin + 1; i++)
+			arr[i] = i+begin;
+		return end - begin + 1;
+	}
+	else
+	{
+		
+		for (int i = 0; i < ADD; i++)
+		{
+			int temp_rand = rand() % (end-begin+1)+begin;
+			bool repeat = false;
+			if (temp_rand == 0)//Invalid
+			{
+				cout << "wrong random number!" << endl;
+				exit(-1);
+			}
+			for (int j = 0; j < ADD; j++)
+			{
+				if (temp_rand == arr[j])//seen before
+				{
+					repeat = true;
+					break;
+				}
+			}
+			if (repeat)
+			{
+				i--;
+				continue;
+			}
+			arr[i] = temp_rand;
+		}
+		return ADD;
+	}
+}
+
+//if generate_data by bfs
+void generate_data_2()
+{
+	cout << "Data is beening generated...Please be patient!" << endl;
 	for (int i = 0; i < 9; i++)
 	{
 		state[1][i] = i;
-		goal[i] = i;
 	}
-	int depthes[12] = {};
+	int depthes[25] = {};
+
+	for (int depth = 2; depth <= 24; depth += 2)
+	{
+		stringstream ss;
+		ss << "data" << depth << ".txt";
+		ofstream fout(ss.str(), ios::out);
+		fout.close();
+	}
+
 	while (1)
 	{
-		if (next_permutation(state[1], state[1] + 8) == 0)
-			break;
-		random_shuffle(goal, goal + 8);
-		int flag = 0;
-		for (int i = 0; i < 12; i++)
+		random_shuffle(state[1], state[1] + 8);
+		int ans = generate_bfs(25);
+		//for each depth
+		for (int depth = 2; depth <= 24; depth += 2)
 		{
-			if (depthes[i] >= 100)
-				flag++;
-		}
-		if (flag >= 11)
-			break;
-		//check if ans exist
-		if (check_rev(state[1]) % 2 != check_rev(goal) % 2) {
-			//cout << "No solution" << endl;
-			continue;
-		}
-		int node_num = 0;
-		int ans = A_star(cal_price, FUNC_NAME[0],node_num);
-		if (dis[ans] % 2 == 0 && dis[ans] <= 24 && dis[ans] >= 2)
-		{
-			depthes[dis[ans] / 2 - 1]++;
-			if (depthes[dis[ans] / 2 - 1] > 100)
-				continue;
+			if (depthes[depth] >= 100)
+				break;
 			stringstream ss;
-			ss << "data" << dis[ans] << ".txt";
+			ss << "data" << depth << ".txt";
 			ofstream fout(ss.str(), ios::app);
-			if (!fout.is_open())
+			int begin = 0, end = 0;
+			bool is_begin = true;
+			for (int itdis = 0;; itdis++)
 			{
-				cout << "Open file Failed" << endl;
-				return;
+				if (is_begin && dis[itdis] == depth)
+				{
+					is_begin = false;
+					begin = itdis;
+				}
+				if (dis[itdis] > depth)
+				{
+					end = itdis;
+					break;
+				}
 			}
-			for (int i = 0; i < 9; i++)
+			int arr[ADD] = {};
+			int num=choose_rand(begin, end, arr);
+			for (int i = 0; i < ADD; i++)
 			{
-				fout << state[1][i] << ' ';
+				if (arr[i] == 0)
+					break;
+				for (int board = 0; board < 9; board++)
+					fout << state[1][board] << ' ';
+				for (int board = 0; board < 9; board++)
+					fout << state[arr[i]][board] << ' ';
+				fout << endl;
 			}
-			for (int i = 0; i < 9; i++)
-			{
-				fout << goal[i] << ' ';
-			}
-			fout << endl;
+			depthes[depth] += num;
 			fout.close();
 		}
+		int flag = 0;
+		for (int k = 2; k <= 24; k+=2)
+		{
+			if (depthes[k] >= 100)
+				flag++;
+		}
+		if (flag >= 12)
+			break;
 	}
+	cout << "done" << endl;
 	return;
 }
+
 /*if display pics and transit state*/
 int display()
 {
@@ -393,7 +508,7 @@ int display()
 	QueryPerformanceCounter(&t1);
 
 	int node_num = 0;
-	int ans = A_star(cal_price, FUNC_NAME[0],node_num);
+	int ans = A_star(cal_price, FUNC_NAME[0], node_num,true);
 
 	// end timing
 	QueryPerformanceCounter(&t2);
@@ -406,7 +521,7 @@ int display()
 		for (int i = 2; i <= N; ++i) {
 			QueryPerformanceCounter(&t1);
 			cal_price = choose_cal_price_fun(i);
-			ans = A_star(cal_price, FUNC_NAME[i - 1],node_num);
+			ans = A_star(cal_price, FUNC_NAME[i - 1], node_num,true);
 			QueryPerformanceCounter(&t2);
 			my_time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
 			if (ans > 0) {
@@ -433,19 +548,19 @@ int display()
 
 const double EPS = 1e-5;
 
-double f1(double b, double n,int d) 
+double f1(double b, double n, int d)
 {
-	double f = (1-pow(b,double(d)))/(1-b)-n;
+	double f = (1 - pow(b, double(d))) / (1 - b) - n;
 	return f;
 }
 
-double f1_grad(double b,int d)
+double f1_grad(double b, int d)
 {
 	double df = ((b * d - double(b) - b) * pow(b, double(d) - 1) + 1) / ((1 - b) * (1 - b));
 	return df;
 }
 
-
+//calculate the effective branching factor 
 double Newton(double x0, double n, int d)
 {
 
@@ -456,7 +571,7 @@ double Newton(double x0, double n, int d)
 		if (itCount)
 			x0 = x1;
 
-		x1 = x0 - ((f1(x0,n,d)) / (f1_grad(x1,d)));
+		x1 = x0 - ((f1(x0, n, d)) / (f1_grad(x1, d)));
 		itCount++;
 
 	} while (abs(x1 - x0) > EPS);
@@ -468,15 +583,16 @@ double Newton(double x0, double n, int d)
 //if testing test data
 int test()
 {
+	cout << "Writing file res.csv...please be patient!" << endl;
 	ofstream fout("res.csv", ios::out);
 	//for each depth
-	for (int i = 2; i <= 24; i+=2)
+	for (int i = 2; i <= 24; i += 2)
 	{
 		//output depth 
 		fout << i << ", ";
 		int (*cal_price)(const State & now) = choose_cal_price_fun(1);
 		//for each h-function
-		for (int k = 1; k <= N; ++k) 
+		for (int k = 1; k <= N; ++k)
 		{
 			double aver_time = 0;
 			int sum_node = 0;
@@ -517,7 +633,7 @@ int test()
 				cal_price = choose_cal_price_fun(k);
 
 				int node_num = 0;
-				ans = A_star(cal_price, FUNC_NAME[k - 1],node_num);
+				ans = A_star(cal_price, FUNC_NAME[k - 1], node_num,false);
 
 				QueryPerformanceCounter(&t2);
 				my_time = (double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart;
@@ -527,11 +643,13 @@ int test()
 				}
 				sum_node += node_num;
 				coun++;
+				if (coun >= 100)
+					break;
 			}
 
 			fin.close();
 
-			double aver_node= (double)sum_node / coun;
+			double aver_node = (double)sum_node / coun;
 			aver_time = aver_time / coun;
 			branching_factor = Newton(2, aver_node, i);
 			fout << aver_time << ", " << aver_node << ", " << branching_factor << ", ";
@@ -539,10 +657,13 @@ int test()
 		fout << endl;
 	}
 	fout.close();
+	cout << "done!" << endl;
 	return 0;
 }
 int main()
 {
-	test();
+	//generate_data_2();
+	//test();
+	display();
 	return 0;
 }
