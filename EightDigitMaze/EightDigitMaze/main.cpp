@@ -417,6 +417,7 @@ int choose_rand(int begin,int end,int arr[ADD])
 //if generate_data by bfs
 void generate_data_2()
 {
+	srand((unsigned)time(0));
 	cout << "Data is beening generated...Please be patient!" << endl;
 	for (int i = 0; i < 9; i++)
 	{
@@ -429,6 +430,11 @@ void generate_data_2()
 		stringstream ss;
 		ss << "data" << depth << ".txt";
 		ofstream fout(ss.str(), ios::out);
+		if (!fout.good())
+		{
+			cout << "Failed to create" << ss.str() << "!" << endl;
+			exit(-1);
+		}
 		fout.close();
 	}
 
@@ -444,6 +450,11 @@ void generate_data_2()
 			stringstream ss;
 			ss << "data" << depth << ".txt";
 			ofstream fout(ss.str(), ios::app);
+			if (!fout.good())
+			{
+				cout << "Failed to open" << ss.str() << "!" << endl;
+				exit(-1);
+			}
 			int begin = 0, end = 0;
 			bool is_begin = true;
 			for (int itdis = 0;; itdis++)
@@ -490,8 +501,8 @@ void generate_data_2()
 /*if display pics and transit state*/
 int display()
 {
-	bool draw = false;
-	bool input = false;
+	bool draw = true;
+	bool input = true;
 	if (input)
 	{
 		cout << "Please input start state: ";
@@ -601,6 +612,24 @@ int test()
 {
 	cout << "Writing file res.csv...please be patient!" << endl;
 	ofstream fout("res.csv", ios::out);
+	if (!fout.good())
+	{
+		cout << "Failed to create rev.csv!" << endl;
+		exit(-1);
+	}
+	fout << " ,";
+	for (int k = 1; k <= N; ++k)
+	{
+		for (int i = 0; i < 3; i++)
+			fout << "h" << k<<",";
+	}
+	fout<< endl;
+	fout << "depth,";
+	for (int k = 1; k <= N; ++k)
+	{
+		fout << "time,nodes,branching,";
+	}
+	fout << endl;
 	//for each depth
 	for (int i = 2; i <= 24; i += 2)
 	{
@@ -620,7 +649,7 @@ int test()
 			ifstream fin(ss.str(), ios::in);
 			if (!fin.is_open())
 			{
-				cout << "No such file exist!" << endl;
+				cout <<ss.str()<< " : No such file exist! Please generate test data first!" << endl;
 				return -1;
 			}
 
@@ -676,10 +705,31 @@ int test()
 	cout << "done!" << endl;
 	return 0;
 }
-int main()
+void usage(char* procname)
 {
+	cout << "Usage : " << endl << "-generate : generate test data" << endl;
+	cout << "-test : test test data" << endl;
+	cout << "-display : display path and search tree" << endl;
+	cout << "e.g. " << procname << " -generate" << endl;
+}
+int main(int argc, char**argv)
+{
+	if (argc != 2)
+	{
+		usage(argv[0]);
+		return 0;
+	}
+	else
+	{
+		if(strcmp(argv[1],"-test")==0)
+			test();
+		if (strcmp(argv[1], "-display") == 0)
+			display();
+		if (strcmp(argv[1], "-generate") == 0)
+			generate_data_2();
+	}
 	//generate_data_2();
 	//test();
-	display();
+	//display();
 	return 0;
 }
