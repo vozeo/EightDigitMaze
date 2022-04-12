@@ -9,6 +9,7 @@
 #include <fstream>
 #include <Windows.h>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
